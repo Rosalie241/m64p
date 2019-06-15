@@ -1,0 +1,16 @@
+image: ubuntu
+
+package:
+    stage: build
+    script:
+        - apt-get -qq update
+        - apt-get -y dist-upgrade
+        - export DEBIAN_FRONTEND=noninteractive; apt-get -y install cmake lsb-release wget libminizip-dev libsdl2-dev libfreetype6-dev libgl1-mesa-dev libglu1-mesa-dev pkg-config zlib1g-dev binutils-dev libspeexdsp-dev libsamplerate0-dev awscli qt5-default build-essential nasm git zip
+        - git clone --recursive https://github.com/loganmc10/m64p.git
+        - cd m64p
+        - chmod +x ../build.sh
+        - ../build.sh
+        
+    artifacts:
+        paths: 
+            - m64p/mupen64plus

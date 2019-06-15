@@ -18,24 +18,23 @@ build_script:
 - cmd: >-
     cd %APPVEYOR_BUILD_FOLDER%
 
-    git submodule update --init
-
     @echo on
 
     SET "PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
 
+    git clone --recursive https://github.com/loganmc10/m64p.git
+    
     bash -c "pacman -Syu --noconfirm"
+
+    bash -c "pacman -S --needed --noconfirm mingw-w64-$myarch-nasm mingw-w64-$myarch-freetype mingw-w64-$myarch-libpng mingw-w64-$myarch-libsamplerate mingw-w64-$myarch-SDL2 mingw-w64-$myarch-jasper mingw-w64-$myarch-qt5 zip"
+
+    cd %APPVEYOR_BUILD_FOLDER%\m64p
     
-    bash -c "pacman -Syu --force --noconfirm"
+    bash -c "chmod +x ../build.sh"
 
-    bash -c "pacman -S --needed --noconfirm mingw-w64-$myarch-nasm mingw-w64-$myarch-freetype mingw-w64-$myarch-libpng mingw-w64-$myarch-libsamplerate mingw-w64-$myarch-SDL2 mingw-w64-$myarch-jasper mingw-w64-$myarch-qt5 mingw-w64-$myarch-python3-pip mingw-w64-$myarch-python3-pyopenssl zip"
+    bash -c "export HOST_CPU=$myarch; ../build.sh"
 
-    cd %APPVEYOR_BUILD_FOLDER%
 
-    bash -c "python3 -m pip install awscli"
-
-    bash -c "wget --quiet $BUILD_SCRIPT"
-    
-    bash -c "chmod +x ./build.sh"
-
-    bash -c "export HOST_CPU=$myarch; export AWS_ACCESS_KEY_ID=$ACCESS_KEY; export AWS_SECRET_ACCESS_KEY=$SECRET_KEY; if [ -z "$APPVEYOR_PULL_REQUEST_NUMBER" ]; then ./build.sh aws; fi"
+artifacts:
+   - path: m64p\mupen64plus-GLideN64-win64.zip
+     name: mupen64plus-GLideN64-win64.zip
