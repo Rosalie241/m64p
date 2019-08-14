@@ -93,7 +93,8 @@ if [[ $UNAME == *"MINGW"* ]]; then
     my_os=win32
   fi
   
-  bash ../bundle_dlls.sh "$install_dir/" "$install_dir/mupen64plus-gui.exe" "/$mingw_prefix/bin/"  
+  bash ../bundle_dlls.sh "$install_dir/" "$install_dir/mupen64plus-gui.exe" "/$mingw_prefix/bin/"
+  bash ../bundle_dlls.sh "$install_dir/" "$install_dir/mupen64plus.dll" "/$mingw_prefix/bin"
   windeployqt.exe "$install_dir/"
   
   cp $base_dir/7za.exe "$install_dir"
