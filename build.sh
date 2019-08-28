@@ -94,7 +94,14 @@ if [[ $UNAME == *"MINGW"* ]]; then
   fi
   
   bash ../bundle_dlls.sh "$install_dir/" "$install_dir/mupen64plus-gui.exe" "/$mingw_prefix/bin/"
-  bash ../bundle_dlls.sh "$install_dir/" "$install_dir/mupen64plus.dll" "/$mingw_prefix/bin"
+  
+  # loop over dlls & bundle required dlls
+  for dll in "$install_dir"/*.dll
+  do
+    echo "=> Bundling dlls for $dll"
+    bash ../bundle_dlls.sh "$install_dir/" "$dll" "/$mingw_prefix/bin"
+  done
+  
   windeployqt.exe "$install_dir/"
   
   cp $base_dir/7za.exe "$install_dir"
