@@ -1,16 +1,11 @@
-version: 1.0.{build}
 image: Visual Studio 2017
-clone_folder: c:\mg
+
 environment:
   MSYS2_DIR: msys64
-  ACCESS_KEY:
-    secure: 4U3SfYBNNlc0VXB/9kPvqFH0qbzOD3FXHIY7SuRFvcQ=
-  SECRET_KEY:
-    secure: PtL0a/tSy8HJbUiwu8GNvx+UfOeOiSTrqGxmGswskxs8EBVLIJX5k2LgnX85V45G
 
   matrix:
     - MSYSTEM: MINGW64
-      myarch: x86_64
+      myarch: x86_64callbacks
 
 build_script:
 - del C:\Windows\System32\libssl-*.dll C:\Windows\system32\libcrypto-*.dll
@@ -24,16 +19,16 @@ build_script:
 
     git clone --recursive https://github.com/loganmc10/m64p.git
     
+    bash -c "rm -rf m64p/GLideN64 && git clone --depth=1 https://github.com/tim241/GLideN64/ -b m64p-gui"
+    
     bash -c "pacman -Syu --noconfirm"
 
     bash -c "pacman -S --needed --noconfirm git mingw-w64-$myarch-nasm mingw-w64-$myarch-freetype mingw-w64-$myarch-libpng mingw-w64-$myarch-libsamplerate mingw-w64-$myarch-SDL2 mingw-w64-$myarch-jasper mingw-w64-$myarch-qt5 zip"
 
-    cd %APPVEYOR_BUILD_FOLDER%\m64p
+    cd m64p
     
     bash -c "chmod +x ../build.sh"
-    bash -c "rm -rf GLideN64"
-    bash -c "git clone --depth=1 https://github.com/tim241/GLideN64/ -b m64p-gui"
-    
+        
     bash -c "export HOST_CPU=$myarch; ../build.sh"
 
 
