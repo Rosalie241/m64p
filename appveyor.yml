@@ -26,12 +26,14 @@ build_script:
     
     bash -c "pacman -Syu --noconfirm"
 
-    bash -c "pacman -S --needed --noconfirm mingw-w64-$myarch-nasm mingw-w64-$myarch-freetype mingw-w64-$myarch-libpng mingw-w64-$myarch-libsamplerate mingw-w64-$myarch-SDL2 mingw-w64-$myarch-jasper mingw-w64-$myarch-qt5 zip"
+    bash -c "pacman -S --needed --noconfirm git mingw-w64-$myarch-nasm mingw-w64-$myarch-freetype mingw-w64-$myarch-libpng mingw-w64-$myarch-libsamplerate mingw-w64-$myarch-SDL2 mingw-w64-$myarch-jasper mingw-w64-$myarch-qt5 zip"
 
     cd %APPVEYOR_BUILD_FOLDER%\m64p
     
     bash -c "chmod +x ../build.sh"
-
+    bash -c "rm -rf GLideN64"
+    bash -c "git clone --depth=1 https://github.com/tim241/GLideN64/ -b m64p-gui"
+    
     bash -c "export HOST_CPU=$myarch; ../build.sh"
 
 
