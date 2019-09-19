@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -xe
 
 UNAME=$(uname -s)
 if [[ $UNAME == *"MINGW"* ]]; then
