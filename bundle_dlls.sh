@@ -20,7 +20,7 @@ function findAndCopyDLL() {
         fi
     done
 
-    return 1
+    return 0
 }
 
 function copyForOBJ() {
