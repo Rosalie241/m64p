@@ -361,6 +361,8 @@ typedef struct {
 typedef struct {
   unsigned int uiWidth;
   unsigned int uiHeight;
+  unsigned int refreshRateCount;
+  unsigned int refreshRates[32];
 } m64p_2d_size;
 
 typedef enum {

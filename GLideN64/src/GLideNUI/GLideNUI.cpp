@@ -29,12 +29,27 @@ int openConfigDialog(const wchar_t * _strFileName, const char * _romName, bool &
 	if (config.generalEmulation.enableCustomSettings != 0 && _romName != nullptr && strlen(_romName) != 0)
 		loadCustomRomSettings(strIniFileName, _romName);
 
+#ifndef GLIDENUI
+	int argc = 0;
+	char * argv = 0;
+	QApplication a(argc, &argv);
+
+	QTranslator translator;
+	if (translator.load(getTranslationFile(), strIniFileName))
+		a.installTranslator(&translator);
+#endif // GLIDENUI
+
 	ConfigDialog w(Q_NULLPTR, Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint);
 
 	w.setIniPath(strIniFileName);
 	w.setRomName(_romName);
 	w.setTitle();
+#ifndef GLIDENUI
+	w.show();
+	const int res = a.exec();
+#else
 	const int res = w.exec();
+#endif // GLIDENUI
 	_accepted = w.isAccepted();
 	return res;
 }

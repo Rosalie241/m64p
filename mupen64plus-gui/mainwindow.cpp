@@ -470,22 +470,170 @@ void MainWindow::resizeMainWindow(int Width, int Height)
         resize(Width, Height);
 }
 
+void MainWindow::toggleFS(int force, int w, int h, int r)
+{
+    this->screen_mode_h = h;
+    this->screen_mode_w = w;
+    this->screen_mode_refresh = r;
+
+    this->toggleFS(force);
+}
+
+#include <SDL2/SDL.h>
+#include <iostream>
+bool backup = true;
+SDL_DisplayMode modeBak;
+SDL_DisplayMode modeBak2;
+bool wasFS = false;
+
+SDL_DisplayMode display_mode;
+SDL_DisplayMode* findDisplayMode(int w, int h, int r)
+{
+    int modes_length = SDL_GetNumDisplayModes(0);
+
+    if (modes_length < 1)
+        return nullptr;
+
+    for (int i = 0; i < modes_length; i++)
+    {
+        if (SDL_GetDisplayMode(0, i, &display_mode) < 0)
+            continue;
+
+        if(display_mode.w == w && display_mode.h == h && display_mode.refresh_rate == r)
+            return &display_mode;
+    }
+
+    return nullptr;
+}
+
 void MainWindow::toggleFS(int force)
 {
+    // init SDL (still a hack, so clean this up later..)
+    SDL_Init(SDL_INIT_VIDEO);
+
     int response = M64VIDEO_NONE;
     if (force == M64VIDEO_NONE)
         (*CoreDoCommand)(M64CMD_CORE_STATE_QUERY, M64CORE_VIDEO_MODE, &response);
     if (response == M64VIDEO_WINDOWED || force == M64VIDEO_FULLSCREEN) {
+
+        if (this->screen_mode_w == -1 || 
+            this->screen_mode_h == -1 || 
+            this->screen_mode_refresh == -1)
+            return;
+
+        // fullscreen
         if (!menuBar()->isNativeMenuBar())
             menuBar()->hide();
         statusBar()->hide();
-        showFullScreen();
+        
+        SDL_Window* window = SDL_CreateWindowFrom((void *)this->winId());
+
+        if(window == NULL)
+            return;
+
+        std::cout << "Setting Video Mode (" << this->screen_mode_w << " x " << this->screen_mode_h << " @ " << this->screen_mode_refresh << ")" << std::endl;
+
+        if (backup)
+        {
+            if (SDL_GetWindowDisplayMode(window, &modeBak) < 0)
+                std::cout << SDL_GetError() << std::endl;
+
+            backup = false;
+        }
+
+        SDL_DisplayMode* mode = findDisplayMode(screen_mode_w, screen_mode_h, screen_mode_refresh);
+
+        if (mode == nullptr)
+        {
+            std::cout << SDL_GetError() << std::endl;
+            return;
+        }
+
+        if (SDL_SetWindowDisplayMode(window, mode) < 0)
+        {
+            std::cout << SDL_GetError() << std::endl;
+        }
+
+        if (SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN) < 0)
+        {
+            std::cout << SDL_GetError() << std::endl;
+        }
+        
+        if (SDL_GetWindowDisplayMode(window, &modeBak2) < 0)
+                std::cout << SDL_GetError() << std::endl;
+
+        std::cout << "resolution is: " << modeBak2.w << " x " << modeBak2.h << " @ " << modeBak2.refresh_rate << std::endl;
+        wasFS = true;
+        //showFullScreen();
     } else if (response == M64VIDEO_FULLSCREEN || force == M64VIDEO_WINDOWED) {
+        // windowed
+
+        // TODO:
+        // restore to original windowed resolution
+        // when we've been fullscreen
+
+        // return to original res
+       /* if(modeBak != nullptr)
+        { */
+        SDL_Window* window = SDL_CreateWindowFrom((void *)this->winId());
+
+
+        SDL_DisplayMode mode;
+        mode.h = 1080;
+        mode.w = 1920;
+        mode.refresh_rate = 60;
+
+        if (SDL_SetWindowDisplayMode(window, &mode) < 0)
+            std::cout << SDL_GetError() << std::endl;
+        
+        SDL_FlushEvent(SDL_WINDOWEVENT);
+
+        if(SDL_SetWindowFullscreen(window, 0) < 0)
+            std::cout << "welp: " << SDL_GetError() << std::endl;
+
+        if(wasFS)
+        {
+            SDL_SetWindowSize(window, screen_mode_w, screen_mode_h);
+                    SDL_FlushEvent(SDL_WINDOWEVENT);
+
+            wasFS = false;
+        }
+
+        // TEST THIS::
+       // SDL_RestoreWindow(window);
+        //}
+/*
+        SDL_Window* window = SDL_CreateWindowFrom((void *)this->winId());
+
+
+        if(window == NULL)
+            return;
+
+         std::cout << "Setting Video Mode (" << this->screen_mode_w << " x " << this->screen_mode_h << " @ " << this->screen_mode_refresh << ")" << std::endl;
+
+              
+        if (SDL_SetWindowFullscreen(window, 0) < 0)
+        {
+            std::cout << SDL_GetError() << std::endl;
+        }
+
+        SDL_DisplayMode mode;
+        mode.h = screen_mode_h;
+        mode.w = screen_mode_w;
+        mode.refresh_rate = screen_mode_refresh;
+
+        if (SDL_SetWindowDisplayMode(window, &mode) < 0)
+        {
+            std::cout << SDL_GetError() << std::endl;
+        }   */
+
+
         if (!nogui) {
             if (!menuBar()->isNativeMenuBar())
                 menuBar()->show();
             statusBar()->show();
         }
+        
         showNormal();
     }
 }

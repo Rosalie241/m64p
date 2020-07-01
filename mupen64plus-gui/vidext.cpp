@@ -5,12 +5,18 @@
 #include <stdio.h>
 #include <QDesktopWidget>
 #include <QScreen>
+#include <SDL2/SDL.h>
 
 static int init;
 static int needs_toggle;
 static int set_volume;
 static QSurfaceFormat format;
 QThread* rendering_thread;
+
+// TEMP
+static int screen_mode_w = -1;
+static int screen_mode_h = -1;
+static int screen_mode_refresh = -1;
 
 m64p_error qtVidExtFuncInit(void)
 {
@@ -41,26 +47,68 @@ m64p_error qtVidExtFuncQuit(void)
     return M64ERR_SUCCESS;
 }
 
+#include <iostream>
 m64p_error qtVidExtFuncListModes(m64p_2d_size *SizeArray, int *NumSizes)
 {
-    QList<QScreen *> screens = QGuiApplication::screens();
-    QRect size = screens.first()->geometry();
-    SizeArray[0].uiWidth = size.width();
-    SizeArray[0].uiHeight = size.height();
-    *NumSizes = 1;
+    SDL_Init(SDL_INIT_VIDEO);
+
+    int mode_count = 0;
+    int modes_length = SDL_GetNumDisplayModes(0);
+    SDL_DisplayMode display_mode;
+
+    if (modes_length < 1)
+        return M64ERR_NOT_INIT;
+
+    for (int i = 0; (i < modes_length && mode_count < *NumSizes); i++)
+    {
+        if (SDL_GetDisplayMode(0, i, &display_mode) < 0)
+            return M64ERR_NOT_INIT;
+
+        m64p_2d_size prevMode = SizeArray[mode_count - 1];
+        if ((prevMode.uiWidth == display_mode.w) &&
+            (prevMode.uiHeight == display_mode.h) &&
+            (prevMode.refreshRateCount < 32))
+        {
+            SizeArray[mode_count - 1].refreshRates[prevMode.refreshRateCount] = display_mode.refresh_rate;
+            SizeArray[mode_count - 1].refreshRateCount++;
+            continue;
+        }
+
+        std::cout << "adding: " << display_mode.h << " x " << display_mode.w << " @ " << display_mode.refresh_rate << std::endl;
+
+        SizeArray[mode_count].uiHeight = display_mode.h;
+        SizeArray[mode_count].uiWidth = display_mode.w;
+        SizeArray[mode_count].refreshRates[0] = display_mode.refresh_rate;
+        SizeArray[mode_count].refreshRateCount = 1;
+        mode_count++;
+    }
+
+    *NumSizes = mode_count;
+
     return M64ERR_SUCCESS;
 }
 
-m64p_error qtVidExtFuncSetMode(int Width, int Height, int, int ScreenMode, int)
+m64p_error qtVidExtFuncSetMode(int Width, int Height, int Refresh, int, int ScreenMode, int)
 {
-    if (!init) {
+    if(!init)
+    {
         w->getWorkerThread()->createOGLWindow(&format);
         while (!w->getOGLWindow()->isValid()) {}
-        w->getWorkerThread()->resizeMainWindow(Width, Height);
-        w->getOGLWindow()->makeCurrent();
-        init = 1;
-        needs_toggle = ScreenMode;
     }
+
+    w->getWorkerThread()->resizeMainWindow(Width, Height);
+
+    if(!init)
+        w->getOGLWindow()->makeCurrent();
+
+    needs_toggle = ScreenMode;
+    screen_mode_w = Width;
+    screen_mode_h = Height;
+    screen_mode_refresh = Refresh;
+
+    init = 1;
+
+    //}
     return M64ERR_SUCCESS;
 }
 
@@ -205,7 +253,7 @@ m64p_error qtVidExtFuncGLSwapBuf(void)
         int value;
         (*CoreDoCommand)(M64CMD_CORE_STATE_QUERY, M64CORE_EMU_STATE, &value);
         if (value > M64EMU_STOPPED) {
-            w->getWorkerThread()->toggleFS(needs_toggle);
+            w->getWorkerThread()->toggleFS(needs_toggle, screen_mode_w, screen_mode_h, screen_mode_refresh);
             needs_toggle = 0;
         }
     }

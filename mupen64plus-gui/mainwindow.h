@@ -45,6 +45,7 @@ protected:
 public slots:
     void resizeMainWindow(int Width, int Height);
     void toggleFS(int force);
+    void toggleFS(int force, int w, int h, int r);
     void createOGLWindow(QSurfaceFormat* format);
     void deleteOGLWindow();
     void setTitle(std::string title);
@@ -115,6 +116,9 @@ private:
     int nogui;
     int gles;
     QString m_title;
+    int screen_mode_w = -1;
+    int screen_mode_h = -1;
+    int screen_mode_refresh = -1;
 
     OGLWindow *my_window = nullptr;
     WorkerThread *workerThread = nullptr;

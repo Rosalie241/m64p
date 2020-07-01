@@ -16,8 +16,6 @@ const u32 gc_uMegabyte = 1024U * 1024U;
 
 struct Config
 {
-	u32 netplay;
-
 	u32 version;
 
 	std::string translationFile;
@@ -252,22 +250,25 @@ struct Config
 extern Config config;
 
 void Config_LoadConfig();
+#if defined(GLIDENUI) || !defined(MUPENPLUSAPI)
 
 #ifdef OS_WINDOWS
-#define EXPORT  __declspec(dllexport)
-#define CALL            __cdecl
+  #define EXPORT  __declspec(dllexport)
+  #define CALL            __cdecl
 #else
-#define EXPORT  __attribute__((visibility("default")))
-#define CALL
+  #define EXPORT  __attribute__((visibility("default")))
+  #define CALL
 #endif
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+#ifdef __cplusplus
+extern "C"
+{
+#endif // __cplusplus
 EXPORT void CALL Config_DoConfig(/*HWND hParent*/);
-#if defined(__cplusplus)
+#ifdef __cplusplus
 }
-#endif
+#endif // __cplusplus
+#endif // defined(GLIDENUI) || !defined(MUPENPLUSAPI)
 
 bool isHWLightingAllowed();
 

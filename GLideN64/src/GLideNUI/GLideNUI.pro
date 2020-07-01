@@ -14,11 +14,10 @@ TEMPLATE = lib
 CONFIG += staticlib
 CONFIG += c++11
 
-win32:DEFINES += OS_WINDOWS
-
 SOURCES += \
 	ConfigDialog.cpp \
 	GLideNUI.cpp \
+	FullscreenResolutions_windows.cpp \
 	Settings.cpp \
 	ScreenShot.cpp \
 	AboutDialog.cpp
@@ -26,6 +25,7 @@ SOURCES += \
 HEADERS += \
 	ConfigDialog.h \
 	GLideNUI.h \
+	FullscreenResolutions.h \
 	Settings.h \
 	AboutDialog.h
 

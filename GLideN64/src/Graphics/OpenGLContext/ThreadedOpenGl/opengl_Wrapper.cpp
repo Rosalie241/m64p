@@ -1457,14 +1457,14 @@ namespace opengl {
 #endif
 	}
 
-	m64p_error FunctionWrapper::CoreVideo_SetVideoMode(int screenWidth, int screenHeight, int bitsPerPixel, m64p_video_mode mode, m64p_video_flags flags)
+	m64p_error FunctionWrapper::CoreVideo_SetVideoMode(int screenWidth, int screenHeight, int screenRefresh, int bitsPerPixel, m64p_video_mode mode, m64p_video_flags flags)
 	{
 		m64p_error returnValue;
 
 		if (m_threaded_wrapper)
-			executeCommand(CoreVideoSetVideoModeCommand::get(screenWidth, screenHeight, bitsPerPixel, mode, flags, returnValue));
+			executeCommand(CoreVideoSetVideoModeCommand::get(screenWidth, screenHeight, screenRefresh, bitsPerPixel, mode, flags, returnValue));
 		else
-			CoreVideoSetVideoModeCommand::get(screenWidth, screenHeight, bitsPerPixel, mode, flags, returnValue)->performCommandSingleThreaded();
+			CoreVideoSetVideoModeCommand::get(screenWidth, screenHeight, screenRefresh, bitsPerPixel, mode, flags, returnValue)->performCommandSingleThreaded();
 
 		return returnValue;
 	}

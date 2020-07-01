@@ -205,7 +205,7 @@ namespace opengl {
 		//Vid_ext functions
 		static m64p_error CoreVideo_Init();
 		static void CoreVideo_Quit();
-		static m64p_error CoreVideo_SetVideoMode(int screenWidth, int screenHeight, int bitsPerPixel, m64p_video_mode mode, m64p_video_flags flags);
+		static m64p_error CoreVideo_SetVideoMode(int screenWidth, int screenHeight, int screenRefresh, int bitsPerPixel, m64p_video_mode mode, m64p_video_flags flags);
 		static void CoreVideo_GL_SetAttribute(m64p_GLattr attribute, int value);
 		static void CoreVideo_GL_GetAttribute(m64p_GLattr attribute, int *value);
 		static void CoreVideo_GL_SwapBuffers();

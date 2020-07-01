@@ -196,7 +196,7 @@ EXPORT m64p_error CALL VidExt_ListFullscreenModes(m64p_2d_size *SizeArray, int *
     return M64ERR_SUCCESS;
 }
 
-EXPORT m64p_error CALL VidExt_SetVideoMode(int Width, int Height, int BitsPerPixel, m64p_video_mode ScreenMode, m64p_video_flags Flags)
+EXPORT m64p_error CALL VidExt_SetVideoMode(int Width, int Height, int Refresh, int BitsPerPixel, m64p_video_mode ScreenMode, m64p_video_flags Flags)
 {
     const SDL_VideoInfo *videoInfo;
     int videoFlags = 0;
@@ -204,7 +204,7 @@ EXPORT m64p_error CALL VidExt_SetVideoMode(int Width, int Height, int BitsPerPix
     /* call video extension override if necessary */
     if (l_VideoExtensionActive)
     {
-        m64p_error rval = (*l_ExternalVideoFuncTable.VidExtFuncSetMode)(Width, Height, BitsPerPixel, ScreenMode, Flags);
+        m64p_error rval = (*l_ExternalVideoFuncTable.VidExtFuncSetMode)(Width, Height, Refresh, BitsPerPixel, ScreenMode, Flags);
         l_Fullscreen = (rval == M64ERR_SUCCESS && ScreenMode == M64VIDEO_FULLSCREEN);
         l_VideoOutputActive = (rval == M64ERR_SUCCESS);
         if (l_VideoOutputActive)

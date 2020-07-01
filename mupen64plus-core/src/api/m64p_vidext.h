@@ -73,9 +73,9 @@ EXPORT m64p_error CALL VidExt_ListFullscreenModes(m64p_2d_size *, int *);
  * video mode. Any desired OpenGL attributes should be set before calling
  * this function.
  */
-typedef m64p_error (*ptr_VidExt_SetVideoMode)(int, int, int, m64p_video_mode, m64p_video_flags);
+typedef m64p_error (*ptr_VidExt_SetVideoMode)(int, int, int, int,m64p_video_mode, m64p_video_flags);
 #if defined(M64P_CORE_PROTOTYPES)
-EXPORT m64p_error CALL VidExt_SetVideoMode(int, int, int, m64p_video_mode, m64p_video_flags);
+EXPORT m64p_error CALL VidExt_SetVideoMode(int, int, int, int, m64p_video_mode, m64p_video_flags);
 #endif
 
 /* VidExt_ResizeWindow()

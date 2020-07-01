@@ -71,17 +71,11 @@ fi
 cd $base_dir/GLideN64/src
 ./getRevision.sh
 
-cd $base_dir/GLideN64/src/GLideNUI
-mkdir -p build
-cd build
-qmake ../GLideNUI.pro
-make -j4
-
 cd $base_dir/GLideN64/projects/cmake
 if [[ $UNAME == *"MINGW"* ]]; then
-  cmake -G "MSYS Makefiles" -DNOHQ=On -DVEC4_OPT=On -DCRC_OPT=On -DMUPENPLUSAPI=On ../../src/
+  cmake -G "MSYS Makefiles" -DNOHQ=On -DVEC4_OPT=On -DCRC_OPT=On -DMUPENPLUSAPI=On -DMUPENPLUSAPI_GLIDENUI=On ../../src/
 else
-  cmake -DNOHQ=On -DVEC4_OPT=On -DCRC_OPT=On -DMUPENPLUSAPI=On ../../src/
+  cmake -DNOHQ=On -DVEC4_OPT=On -DCRC_OPT=On -DMUPENPLUSAPI=On -DMUPENPLUSAPI_GLIDENUI=On ../../src/
 fi
 make -j4
 

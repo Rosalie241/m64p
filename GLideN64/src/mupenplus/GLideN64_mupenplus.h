@@ -29,8 +29,6 @@ extern ptr_ConfigGetParamString   ConfigGetParamString;
 extern ptr_ConfigExternalGetParameter ConfigExternalGetParameter;
 extern ptr_ConfigExternalOpen ConfigExternalOpen;
 extern ptr_ConfigExternalClose ConfigExternalClose;
-extern ptr_ConfigSendNetplayConfig ConfigSendNetplayConfig;
-extern ptr_ConfigReceiveNetplayConfig ConfigReceiveNetplayConfig;
 
 extern ptr_ConfigGetSharedDataFilepath ConfigGetSharedDataFilepath;
 extern ptr_ConfigGetUserConfigPath     ConfigGetUserConfigPath;
@@ -58,5 +56,10 @@ extern const unsigned int* rdram_size;
 extern void(*renderCallback)(int);
 
 extern m64p_handle g_configVideoGeneral;
+
+#ifndef GLIDENUI
+extern m64p_handle g_configVideoGliden64;
+bool Config_SetDefault();
+#endif // GLIDENUI
 
 #endif // GLIDEN64_MUPENPLUS_H
