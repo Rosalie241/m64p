@@ -251,24 +251,8 @@ extern Config config;
 
 void Config_LoadConfig();
 #if defined(GLIDENUI) || !defined(MUPENPLUSAPI)
-
-#ifdef OS_WINDOWS
-  #define EXPORT  __declspec(dllexport)
-  #define CALL            __cdecl
-#else
-  #define EXPORT  __attribute__((visibility("default")))
-  #define CALL
+void Config_DoConfig(/*HWND hParent*/);
 #endif
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif // __cplusplus
-EXPORT void CALL Config_DoConfig(/*HWND hParent*/);
-#ifdef __cplusplus
-}
-#endif // __cplusplus
-#endif // defined(GLIDENUI) || !defined(MUPENPLUSAPI)
 
 bool isHWLightingAllowed();
 

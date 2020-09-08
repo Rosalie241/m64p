@@ -22,44 +22,39 @@ static struct
 	uint32_t numRefreshRates;
 } fullscreen;
 
-#include <iostream>
 static void _fillFullscreenRefreshRateList(QStringList &_listRefreshRates, int &_rateIdx)
 {
 	memset(&fullscreen.refreshRate, 0, sizeof(fullscreen.refreshRate));
 	fullscreen.numRefreshRates = 0;
 	_rateIdx = 0;
 
-	int resolutions_length = 32;
-	m64p_2d_size *resolutions = (m64p_2d_size *)malloc(resolutions_length * sizeof(m64p_2d_size));
 	m64p_error ret;
+	m64p_2d_size size;
+	size.uiHeight = fullscreen.selected.height;
+	size.uiWidth = fullscreen.selected.width;
 
-	ret = CoreVideo_ListFullscreenModes(resolutions, &resolutions_length);
+	int num_rates = 32;
+	int *rates = (int *)malloc(num_rates * sizeof(int));
+
+	ret = CoreVideo_ListFullscreenRates(size, &num_rates, rates);
 
 	if (ret != M64ERR_SUCCESS)
 		return;
 
-	for (int i = 0; i < resolutions_length; i++)
+	for (int i = 0; i < num_rates; i++)
 	{
-		// skip unrelated resolutions
-		if ((fullscreen.selected.height != resolutions[i].uiHeight) ||
-			(fullscreen.selected.width != resolutions[i].uiWidth))
-			continue;
+		int refreshRate = rates[i];
 
-		for (int x = 0; x < resolutions[i].refreshRateCount; x++)
-		{
-			int refreshRate = resolutions[i].refreshRates[x];
+		_listRefreshRates.append(QString::number(refreshRate) + " Hz");
+		fullscreen.refreshRate[fullscreen.numRefreshRates] = refreshRate;
 
-			_listRefreshRates.append(QString::number(refreshRate) + " Hz");
-			fullscreen.refreshRate[fullscreen.numRefreshRates] = refreshRate;
+		if (fullscreen.selected.refreshRate == refreshRate)
+			_rateIdx = fullscreen.numRefreshRates;
 
-			if (fullscreen.selected.refreshRate == refreshRate)
-				_rateIdx = fullscreen.numRefreshRates;
-
-			fullscreen.numRefreshRates++;
-		}
+		fullscreen.numRefreshRates++;
 	}
 
-	free(resolutions);
+	free(rates);
 }
 
 void fillFullscreenResolutionsList(QStringList &_listResolutions, int &_resolutionIdx, QStringList &_listRefreshRates, int &_rateIdx)
@@ -88,7 +83,6 @@ void fillFullscreenResolutionsList(QStringList &_listResolutions, int &_resoluti
 		fullscreen.resolution[fullscreen.numResolutions].width = resolutions[i].uiWidth;
 		fullscreen.resolution[fullscreen.numResolutions].height = resolutions[i].uiHeight;
 
-		std::cout << resolutions[i].uiWidth << " x " << resolutions[i].uiHeight << std::endl;
 		_listResolutions.append(QString::number(resolutions[i].uiWidth) + " x " + QString::number(resolutions[i].uiHeight));
 
 		if ((fullscreen.selected.width == resolutions[i].uiWidth) &&

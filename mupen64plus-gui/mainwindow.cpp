@@ -526,8 +526,34 @@ void MainWindow::toggleFS(int force)
             menuBar()->hide();
         statusBar()->hide();
         
-        SDL_Window* window = SDL_CreateWindowFrom((void *)this->winId());
+        SDL_Window* SDL_VideoWindow = SDL_CreateWindowFrom((void *)this->winId());
 
+        if (!SDL_WasInit(SDL_INIT_VIDEO) || !SDL_VideoWindow)
+            return;
+    
+        if (SDL_SetWindowFullscreen(SDL_VideoWindow, SDL_WINDOW_FULLSCREEN) < 0)
+        {
+            DebugMessage(M64MSG_ERROR, "SDL_SetWindowFullscreen failed: %s", SDL_GetError());
+            return;
+        }
+
+
+            // create SDL_DisplayMode structure
+           /* SDL_DisplayMode mode;
+            mode.w = Width;
+            mode.h = Height;
+            mode.refresh_rate = RefreshRate;
+            mode.driverdata = (void*)0;
+
+            if (SDL_SetWindowDisplayMode(SDL_VideoWindow, &mode) < 0)
+            {
+                DebugMessage(M64MSG_ERROR, "SDL_SetWindowDisplayMode failed: %s", SDL_GetError());
+                return;
+            }
+*/
+        SDL_ShowCursor(SDL_DISABLE);
+        return;
+/*
         if(window == NULL)
             return;
 
@@ -563,7 +589,7 @@ void MainWindow::toggleFS(int force)
                 std::cout << SDL_GetError() << std::endl;
 
         std::cout << "resolution is: " << modeBak2.w << " x " << modeBak2.h << " @ " << modeBak2.refresh_rate << std::endl;
-        wasFS = true;
+        wasFS = true;*/
         //showFullScreen();
     } else if (response == M64VIDEO_FULLSCREEN || force == M64VIDEO_WINDOWED) {
         // windowed
@@ -918,7 +944,7 @@ void MainWindow::on_actionController_Configuration_triggered()
     if (QtAttachCoreLib()) {
         PluginSearchLoad();
         typedef void (*Config_Func)();
-        Config_Func Config_DoConfig = (Config_Func) osal_dynlib_getproc(g_PluginMap[2].handle, "Config_DoConfig");
+        Config_Func Config_DoConfig = (Config_Func) osal_dynlib_getproc(g_PluginMap[2].handle, "PluginConfig");
         if (Config_DoConfig)
             Config_DoConfig();
     }
@@ -944,7 +970,9 @@ void MainWindow::on_actionVideo_Settings_triggered()
     if (QtAttachCoreLib()) {
         PluginSearchLoad();
         typedef void (*Config_Func)();
-        Config_Func Config_DoConfig = (Config_Func) osal_dynlib_getproc(g_PluginMap[0].handle, "Config_DoConfig");
+        for (int i = 0; i < 50; i++)
+            std::cout << "PluginConfig" << std::endl;
+        Config_Func Config_DoConfig = (Config_Func) osal_dynlib_getproc(g_PluginMap[0].handle, "PluginConfig");
         if (Config_DoConfig)
             Config_DoConfig();
     }

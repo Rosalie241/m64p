@@ -1,6 +1,3 @@
-#ifdef _WIN32
-#include "../windows/GLideN64_Windows.h"
-#endif // _WIN32
 #include "../N64.h"
 #include "../Config.h"
 #include "../RSP.h"

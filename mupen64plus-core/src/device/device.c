@@ -202,8 +202,7 @@ void init_device(struct device* dev,
         (uint8_t*)mem_base_u32(base, MM_PIF_MEM),
         jbds, ijbds,
         (uint8_t*)mem_base_u32(base, rom_base) + 0x40,
-        &dev->r4300,
-        &dev->si);
+        &dev->r4300);
 
     init_cart(&dev->cart,
             af_rtc_clock, iaf_rtc_clock,

@@ -95,9 +95,13 @@ bool DisplayWindowMupen64plus::_start()
 
 	LOG(LOG_VERBOSE, "Setting video mode %dx%d", m_screenWidth, m_screenHeight);
 	const m64p_video_flags flags = M64VIDEOFLAG_SUPPORT_RESIZING;
-	returnValue = FunctionWrapper::CoreVideo_SetVideoMode(m_screenWidth, m_screenHeight, m_screenRefresh, 0, m_bFullscreen ? M64VIDEO_FULLSCREEN : M64VIDEO_WINDOWED, flags);
+#ifdef GLIDENUI
+	returnValue = FunctionWrapper::CoreVideo_SetVideoModeWithRate(m_screenWidth, m_screenHeight, m_screenRefresh, 0, m_bFullscreen ? M64VIDEO_FULLSCREEN : M64VIDEO_WINDOWED, flags);
+#else
+	returnValue = FunctionWrapper::CoreVideo_SetVideoMode(m_screenWidth, m_screenHeight, 0, m_bFullscreen ? M64VIDEO_FULLSCREEN : M64VIDEO_WINDOWED, flags);
+#endif
 	if (returnValue != M64ERR_SUCCESS) {
-		LOG(LOG_ERROR, "Error setting videomode %dx%d. Error code: %d", m_screenWidth, m_screenHeight, returnValue);
+		LOG(LOG_ERROR, "Error setting videomode %dx%d @ %d. Error code: %d", m_screenWidth, m_screenHeight, m_screenRefresh, returnValue);
 		FunctionWrapper::CoreVideo_Quit();
 		return false;
 	}
@@ -149,7 +153,6 @@ bool DisplayWindowMupen64plus::_resizeWindow()
 {
 	_setAttributes();
 
-#ifndef GLIDENUI
 	m_bFullscreen = false;
 	m_width = m_screenWidth = m_resizeWidth;
 	m_height = m_screenHeight = m_resizeHeight;
@@ -169,42 +172,36 @@ bool DisplayWindowMupen64plus::_resizeWindow()
 			FunctionWrapper::CoreVideo_Quit();
 			return false;
 	}
-#endif // GLIDENUI
-
 	_setBufferSize();
 	opengl::Utils::isGLError(); // reset GL error.
 	return true;
 }
 
-#include <iostream>
-bool fullscreen = false;
 void DisplayWindowMupen64plus::_changeWindow()
 {
 #ifdef GLIDENUI
-	std::cout << "m_bFullscreen: " << m_bFullscreen << std::endl;
-	//m_bFullscreen = !m_bFullscreen;
-	fullscreen = !fullscreen;
-	if(!m_bFullscreen)
+	m64p_error returnValue;
+	m_bFullscreen = !m_bFullscreen;
+	if (m_bFullscreen)
 	{
 		m_screenWidth = config.video.fullscreenWidth;
 		m_screenHeight = config.video.fullscreenHeight;
 		m_screenRefresh = config.video.fullscreenRefresh;
-		m_bFullscreen = true;
 	}
 	else
 	{
 		m_screenWidth = config.video.windowedWidth;
 		m_screenHeight = config.video.windowedHeight;
-		m_screenRefresh = config.video.fullscreenRefresh;
-		m_bFullscreen = false;
 	}
-	m_width = m_screenWidth;
-	m_height = m_screenHeight;
 
 	m64p_video_flags flags = {};
-	FunctionWrapper::CoreVideo_SetVideoMode(m_screenWidth, m_screenHeight, m_screenRefresh, 0, m_bFullscreen ? M64VIDEO_FULLSCREEN : M64VIDEO_WINDOWED, flags);
-	// welp??
-	_resizeWindow();
+	returnValue = FunctionWrapper::CoreVideo_SetVideoModeWithRate(m_screenWidth, m_screenHeight, m_screenRefresh, 0, m_bFullscreen ? M64VIDEO_FULLSCREEN : M64VIDEO_WINDOWED, flags);
+
+	if (returnValue != M64ERR_SUCCESS)
+	{
+		LOG(LOG_ERROR, "Error setting videomode %dx%d @ %d. Error code: %d", m_screenWidth, m_screenHeight, m_screenRefresh, returnValue);
+		FunctionWrapper::CoreVideo_Quit();
+	}
 #else
 	CoreVideo_ToggleFullScreen();
 #endif // GLIDENUI

@@ -66,20 +66,13 @@ m64p_error qtVidExtFuncListModes(m64p_2d_size *SizeArray, int *NumSizes)
 
         m64p_2d_size prevMode = SizeArray[mode_count - 1];
         if ((prevMode.uiWidth == display_mode.w) &&
-            (prevMode.uiHeight == display_mode.h) &&
-            (prevMode.refreshRateCount < 32))
-        {
-            SizeArray[mode_count - 1].refreshRates[prevMode.refreshRateCount] = display_mode.refresh_rate;
-            SizeArray[mode_count - 1].refreshRateCount++;
+            (prevMode.uiHeight == display_mode.h))
             continue;
-        }
 
-        std::cout << "adding: " << display_mode.h << " x " << display_mode.w << " @ " << display_mode.refresh_rate << std::endl;
+        std::cout << "adding: " << display_mode.h << " x " << display_mode.w << " @ " << std::endl;
 
         SizeArray[mode_count].uiHeight = display_mode.h;
         SizeArray[mode_count].uiWidth = display_mode.w;
-        SizeArray[mode_count].refreshRates[0] = display_mode.refresh_rate;
-        SizeArray[mode_count].refreshRateCount = 1;
         mode_count++;
     }
 
@@ -88,7 +81,63 @@ m64p_error qtVidExtFuncListModes(m64p_2d_size *SizeArray, int *NumSizes)
     return M64ERR_SUCCESS;
 }
 
-m64p_error qtVidExtFuncSetMode(int Width, int Height, int Refresh, int, int ScreenMode, int)
+#include <iostream>
+m64p_error qtVidExtFuncListRates(m64p_2d_size Size, int *NumRates, int *Rates)
+{
+    if (!SDL_WasInit(SDL_INIT_VIDEO))
+        return M64ERR_NOT_INIT;
+
+    int modeCount = SDL_GetNumDisplayModes(0);
+    SDL_DisplayMode displayMode;
+
+    if (modeCount < 1)
+        return M64ERR_SYSTEM_FAIL;
+
+    int rateCount = 0;
+    for (int i = 0; (i < modeCount) && (rateCount < *NumRates); i++)
+    {
+        if (SDL_GetDisplayMode(0, i, &displayMode) < 0)
+            return M64ERR_SYSTEM_FAIL;
+
+        // skip when we're not at the right resolution
+        if (displayMode.w != Size.uiWidth ||
+            displayMode.h != Size.uiHeight)
+            continue;
+
+        Rates[rateCount] = displayMode.refresh_rate;
+        rateCount++;
+    }
+
+    *NumRates = rateCount;
+
+    return M64ERR_SUCCESS;
+}
+
+m64p_error qtVidExtFuncSetMode(int Width, int Height, int, int ScreenMode, int)
+{
+    if(!init)
+    {
+        w->getWorkerThread()->createOGLWindow(&format);
+        while (!w->getOGLWindow()->isValid()) {}
+    }
+
+    w->getWorkerThread()->resizeMainWindow(Width, Height);
+
+    if(!init)
+        w->getOGLWindow()->makeCurrent();
+
+    needs_toggle = ScreenMode;
+    screen_mode_w = Width;
+    screen_mode_h = Height;
+    screen_mode_refresh = -1;
+
+    init = 1;
+
+    //}
+    return M64ERR_SUCCESS;
+}
+
+m64p_error qtVidExtFuncSetMode2(int Width, int Height, int Refresh, int, int ScreenMode, int)
 {
     if(!init)
     {
