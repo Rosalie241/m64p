@@ -17,10 +17,14 @@ build_script:
 
     SET "PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
 
-    git clone --recursive https://github.com/loganmc10/m64p.git
+    git clone https://github.com/Rosalie241/m64p
     
     cd m64p
     
+    git checkout a559892e4779b4f8f1d9d0d8a9219e067b1c7e19
+    
+    git submodule update --init --recursive
+        
     bash -c "rm -rf GLideN64 && git clone --depth=1 https://github.com/tim241/GLideN64/ -b m64p-gui"
     
     bash -c "pacman -Syu --noconfirm"
