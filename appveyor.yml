@@ -25,10 +25,11 @@ build_script:
     
     git submodule update --init --recursive
         
+    bash -c "curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz && curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig && pacman -U --config <(echo) msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz"
         
     bash -c "rm -rf GLideN64 && git clone --depth=1 https://github.com/Rosalie241/GLideN64/ -b m64p-gui"
     
-    bash -c "rm -r /etc/pacman.d/gnupg/ && pacman-key --init && pacman-key --populate msys2 && pacman -Syu --noconfirm"
+    bash -c "pacman -Syu --noconfirm"
 
     bash -c "pacman -S --needed --noconfirm git mingw-w64-$myarch-nasm mingw-w64-$myarch-freetype mingw-w64-$myarch-libpng mingw-w64-$myarch-libsamplerate mingw-w64-$myarch-SDL2 mingw-w64-$myarch-jasper mingw-w64-$myarch-qt5 zip"
     
