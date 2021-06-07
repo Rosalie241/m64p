@@ -29,7 +29,7 @@ build_script:
         
     bash -c "rm -rf GLideN64 && git clone --depth=1 https://github.com/Rosalie241/GLideN64/ -b m64p-gui"
     
-    bash -c "pacman -Sy zstd"
+    bash -c "pacman -Sy zstd --noconfirm"
     
     bash -c "pacman -Syu --noconfirm"
 
